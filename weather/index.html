@@ -10,7 +10,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   html, body {
-    background: transparent !important;
+    background: #191919 !important;
     font-family: 'Share Tech Mono', monospace;
     color: #e8e8e8;
     min-height: 100vh;
@@ -136,7 +136,7 @@
 </div>
 
 <script>
-  const API_KEY = '92c6f4e36a9fb5f60329fd71f6187d30'; 
+  const API_KEY = '92c6f4e36a9fb5f60329fd71f6187d30';
   const LAT = 41.4931;
   const LON = -90.5748;
   const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -176,7 +176,7 @@
         byDay[key].lo = Math.min(byDay[key].lo, item.main.temp_min);
       });
 
-      const days = Object.values(byDay).slice(1, 8);
+      const days = Object.values(byDay).slice(0, 7);
       const fc = document.getElementById('forecast');
       fc.innerHTML = days.map(d => `
         <div class="day">
