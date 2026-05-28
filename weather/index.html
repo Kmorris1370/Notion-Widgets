@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a0a;
+    font-family: 'Share Tech Mono', monospace;
+    color: #e8e8e8;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 16px;
+  }
+
+  .container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  /* LEFT — current weather */
+  .current {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 130px;
+    border-right: 1px solid #2a3d2a;
+    padding-right: 24px;
+  }
+
+  .location {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: #5a8a5a;
+    text-transform: uppercase;
+  }
+
+  .location span {
+    display: block;
+    font-size: 9px;
+    color: #3d5e3d;
+    letter-spacing: 0.1em;
+  }
+
+  .current-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .current-icon { font-size: 22px; }
+
+  .current-temp {
+    font-size: 26px;
+    color: #a8c8a0;
+    letter-spacing: -0.02em;
+  }
+
+  .current-condition {
+    font-size: 10px;
+    color: #5a8a5a;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+  }
+
+  /* RIGHT — forecast */
+  .forecast {
+    display: flex;
+    gap: 0;
+    flex: 1;
+    overflow-x: auto;
+  }
+
+  .day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    flex: 1;
+    padding: 0 8px;
+    border-right: 1px solid #1a2e1a;
+  }
+
+  .day:last-child { border-right: none; }
+
+  .day-name {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: #4a7a4a;
+    text-transform: uppercase;
+  }
+
+  .day-icon { font-size: 18px; }
+
+  .day-hi {
+    font-size: 12px;
+    color: #a8c8a0;
+  }
+
+  .day-lo {
+    font-size: 11px;
+    color: #3d6e3d;
+  }
+
+  .error {
+    color: #5a8a5a;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+  }
+
+  /* scrollbar */
+  .forecast::-webkit-scrollbar { height: 2px; }
+  .forecast::-webkit-scrollbar-track { background: transparent; }
+  .forecast::-webkit-scrollbar-thumb { background: #2a3d2a; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="current">
+    <div class="location">Rock Island<span>weather</span></div>
+    <div class="current-row">
+      <span class="current-icon" id="cur-icon">⏳</span>
+      <span class="current-temp" id="cur-temp">--°F</span>
+    </div>
+    <div class="current-condition" id="cur-cond">loading...</div>
+  </div>
+  <div class="forecast" id="forecast">
+    <div class="error">fetching forecast...</div>
+  </div>
+</div>
+
+<script>
+  const API_KEY = 'bd5e378503939ddaee76f12ad7a97608'; // free public demo key
+  const LAT = 41.4931;
+  const LON = -90.5748;
+  const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+  const iconMap = code => {
+    if (code <= 232) return '⛈️';
+    if (code <= 321) return '🌦️';
+    if (code <= 531) return '🌧️';
+    if (code <= 622) return '❄️';
+    if (code <= 781) return '🌪️';
+    if (code === 800) return '☀️';
+    if (code === 801) return '🌤️';
+    if (code <= 803) return '⛅';
+    return '☁️';
+  };
+
+  async function load() {
+    try {
+      // Current weather
+      const cur = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=imperial`
+      ).then(r => r.json());
+
+      document.getElementById('cur-icon').textContent = iconMap(cur.weather[0].id);
+      document.getElementById('cur-temp').textContent = `${Math.round(cur.main.temp)}°F`;
+      document.getElementById('cur-cond').textContent = cur.weather[0].description;
+
+      // 7-day forecast via daily endpoint
+      const fore = await fetch(
+        `https://api.openweathermap.org/data/2.5/forecast?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=imperial`
+      ).then(r => r.json());
+
+      // Group by day
+      const byDay = {};
+      fore.list.forEach(item => {
+        const d = new Date(item.dt * 1000);
+        const key = d.toDateString();
+        if (!byDay[key]) byDay[key] = { hi: -999, lo: 999, icon: item.weather[0].id, date: d };
+        byDay[key].hi = Math.max(byDay[key].hi, item.main.temp_max);
+        byDay[key].lo = Math.min(byDay[key].lo, item.main.temp_min);
+      });
+
+      const days = Object.values(byDay).slice(0, 7);
+      const fc = document.getElementById('forecast');
+      fc.innerHTML = days.map(d => `
+        <div class="day">
+          <div class="day-name">${DAYS[d.date.getDay()].slice(0,3)}</div>
+          <div class="day-icon">${iconMap(d.icon)}</div>
+          <div class="day-hi">${Math.round(d.hi)}°</div>
+          <div class="day-lo">${Math.round(d.lo)}°</div>
+        </div>
+      `).join('');
+
+    } catch(e) {
+      document.getElementById('forecast').innerHTML =
+        '<div class="error">could not load weather</div>';
+    }
+  }
+
+  load();
+  setInterval(load, 10 * 60 * 1000); // refresh every 10 min
+</script>
+</body>
+</html>
