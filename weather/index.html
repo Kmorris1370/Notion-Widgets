@@ -10,7 +10,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    background: #0a0a0a;
+    background: transparent;
     font-family: 'Share Tech Mono', monospace;
     color: #e8e8e8;
     min-height: 100vh;
@@ -176,7 +176,7 @@
         byDay[key].lo = Math.min(byDay[key].lo, item.main.temp_min);
       });
 
-      const days = Object.values(byDay).slice(0, 7);
+      const days = Object.values(byDay).slice(0, 8);
       const fc = document.getElementById('forecast');
       fc.innerHTML = days.map(d => `
         <div class="day">
