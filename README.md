@@ -1,13 +1,13 @@
-# Notion-Widgets
+#Widgets
 
-Custom widgets built for embedding in Notion. Hosted via GitHub Pages at `https://kmorris1370.github.io/Notion-Widgets/`
+Custom widgets built for embedding in Notion. Hosted via GitHub Pages at `https://kmorris1370.github.io/Widgets/`
 
 ---
 
 ## Widgets
 
 ### Weather
-**URL:** `https://kmorris1370.github.io/Notion-Widgets/weather/`
+**URL:** `https://kmorris1370.github.io/Widgets/weather/`
 
 A minimal 7-day weather widget for Rock Island, IL. Displays current temperature, condition, and a weekly forecast with weather icons.
 
@@ -50,7 +50,6 @@ Notion-Widgets/
 
 ## Planned Widgets
 
-- Meal picker (hosted separately at `meal-picker` repo)
 - Bill reminder
 - Notion quick note
 
